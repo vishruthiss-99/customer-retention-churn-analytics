@@ -1,0 +1,138 @@
+
+ /* =====================================
+   CUSTOMER RETENTION & CHURN ANALYTICS
+   SQL BUSINESS ANALYSIS PROJECT
+===================================== */
+
+
+
+
+
+/* foreign key = Customer ID */
+ 
+/*    DATA CLEANING & PREPARATION */
+
+describe telco_customer_churn_demographics;
+
+ALTER TABLE telco_customer_churn_demographics
+CHANGE COLUMN `ï»¿Customer ID` CustomerID VARCHAR(50);
+
+ALTER TABLE telco_customer_churn
+CHANGE COLUMN ï»¿CustomerID CustomerID VARCHAR(50);
+
+ALTER table telco_customer_churn_services
+Change column `ï»¿Service ID` ServiceID VARCHAR(50);
+ALter table telco_customer_churn_services
+CHANGE COLUMN `Customer ID` CustomerID VARCHAR(50);
+
+
+ALter Table telco_customer_churn_status
+change column `ï»¿Status ID` StatusID varchar(50);
+ALter table telco_customer_churn_status
+CHANGE COLUMN `Customer ID` CustomerID VARCHAR(50);
+
+Select 
+d.CustomerID, d.Age,
+st.`Churn Score`,
+st.`Satisfaction Score`
+From telco_customer_churn_demographics d
+Join telco_customer_churn_status st
+on d.CustomerID = st.CustomerID;
+
+SELECT 
+d.CustomerID,
+d.Age,
+s.Offer
+FROM telco_customer_churn_demographics d
+JOIN telco_customer_churn_services s
+ON d.CustomerID = s.CustomerID;
+
+SELECT
+c.CustomerID,
+d.Gender,
+d.Age,
+s.`Internet Type`,
+st.`Customer Status`,
+st.`Churn Reason`
+From telco_customer_churn c
+join telco_customer_churn_demographics d
+on c.CustomerID = d.CustomerID
+join telco_customer_churn_services s
+on c.CustomerID = s.CustomerID
+join telco_customer_churn_status st
+on c.CustomerID = st.CustomerID;
+
+
+
+/* =====================================
+   BUSINESS KPI ANALYSIS
+===================================== */
+
+
+-- TOTAL CUSTOMERS
+SELECT COUNT(*) AS TotalCustomers
+FROM telco_customer_churn;
+
+-- CUSTOMER STATUS BREAKDOWN
+SELECT `Customer Status`, Count(*) as TotalCustomers
+FROM telco_customer_churn_status
+Group by `Customer Status`;
+
+-- CHURN RATE
+Select Round( 
+Sum( CASE WHEN `Customer Status` = "Churned" then 1 else 0 end) *100.0 / Count(*),2)
+as Churn_rate 
+from telco_customer_churn_status;
+
+-- CHURN BY GENDER
+SELECT 
+d.Gender,
+COUNT(*) AS TotalCustomers,
+SUM(CASE WHEN st.`Customer Status` = 'Churned' THEN 1 ELSE 0 END) AS ChurnedCustomers
+FROM telco_customer_churn_demographics d
+JOIN telco_customer_churn_status st
+ON d.CustomerID = st.CustomerID
+GROUP BY d.Gender;
+
+
+-- CHURN BY INTERNET TYPE
+Select s.`Internet Type`, 
+count(*) as Totalcustomers,
+sum( case when `Customer Status` = 'Churned' then 1 else 0 end) as ChrunedCustomers
+From telco_customer_churn_status st
+join telco_customer_churn_services s
+on s.CustomerID = st.CustomerID
+Group by s.`Internet Type`;
+
+-- AGE GROUP ANALYSIS
+
+SELECT
+CASE
+WHEN d.Age < 30 THEN 'Under 30'
+WHEN d.Age BETWEEN 30 AND 50 THEN '30-50'
+ELSE 'Above 50' END AS AgeGroup,
+COUNT(*) AS TotalCustomers,
+SUM(CASE WHEN st.`Customer Status` ='Churned' THEN 1 ELSE 0 END) AS ChurnedCustomers
+FROM telco_customer_churn_demographics d
+JOIN telco_customer_churn_status st
+ON d.CustomerID = st.CustomerID
+GROUP BY AgeGroup;
+
+Select 
+case 
+when d.Age < 30 THEN 'Under 30' 
+when d.Age between 30 and 50 THEN '30 - 50'
+else 'Above 50' end as AgeGroup, 
+Count(*) as TotalCustomers,
+Sum(case when `Customer Status` = 'Churned' then 1 else 0 end) as ChurnedCustomers
+From telco_customer_churn_demographics d
+join telco_customer_churn_status st 
+on d.CustomerID = st.CustomerID
+Group by AgeGroup;
+
+
+
+/* =====================================
+   ADVANCED BUSINESS INSIGHTS
+===================================== */
+
