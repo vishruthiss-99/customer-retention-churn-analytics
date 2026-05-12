@@ -29,4 +29,4 @@ This project analyzes customer churn patterns using SQL and Power BI. The object
 - Dashboard → Power BI dashboard files
 - screenshots → Dashboard preview images
 
-
+![Dashboard Preview](screenshots/Chrun_analysis_SS.png)
